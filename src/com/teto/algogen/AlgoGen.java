@@ -1,4 +1,4 @@
-package com.teto;
+package com.teto.algogen;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
