@@ -6,8 +6,8 @@ import java.util.Random;
 
 public class BSA {
     // ---------- PARAMETRE ---------- //
-    public static final int NOMBRE_DE_PARTICULE = 40;
     public static final int NOMBRE_DE_VOISIN = 4;
+    public static final int[] NOMBRE_DE_PARTICULE = {35 , 40};
     public static final int MAX_ITERRATION = 10_000;
 
     public static final double[] DELTA_VITESSE = {-4.0, 4.0};
@@ -28,8 +28,8 @@ public class BSA {
     }
 
     public static void initializeParticule() {
-        particules = new Particule[NOMBRE_DE_PARTICULE];
-        for(int i = 0; i < NOMBRE_DE_PARTICULE; i++) {
+        particules = new Particule[NOMBRE_DE_PARTICULE[0]];
+        for(int i = 0; i < NOMBRE_DE_PARTICULE[0]; i++) {
             particules[i] = new Particule(DIMENSION);
             for(int d = 0; d < DIMENSION; d++){
                 particules[i].p[d] = getRandomPosition();
