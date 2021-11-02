@@ -1,5 +1,10 @@
 package com.teto.algogen;
-
+/*      -- THE BEST RESULT IS : --
+        GENETIQUE : 1_0_1_1_1_1_0_0_0_0
+        SOMME : 2 + 7 + 8 + 9 + 10  = 36
+        PRODUIT : 1 * 3 * 4 * 5 * 6  = 360
+        EVAL : 0
+*/
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Random;
@@ -8,8 +13,8 @@ public class AlgoGen {
 
     // CONSTANTE
     static final byte DIMENSION = 10;
-    static final byte POPULATION_SIZE = 30;
-    static final int MAX_GENERATION = 20_000;
+    static final byte POPULATION_SIZE = 40;
+    static final int MAX_GENERATION = 200_000;
     static final byte CHANCE_OF_CROSSOVER = 75;
     static final byte CHANCE_OF_MUTATION = 10;
     // RULES
@@ -32,23 +37,22 @@ public class AlgoGen {
 
         // GENERATION
         for(int i = 0 ; i < MAX_GENERATION; i++ ) {
-            for( int j = 1; j < POPULATION_SIZE / 2; j++) {
-                Byte[] individuA = population.get(getRand(0,POPULATION_SIZE - 1));
-                Byte[] individuB = population.get(getRand(0,POPULATION_SIZE - 1));
+            for( int j = 1; j < POPULATION_SIZE; j++) {
+                ArrayList<Byte[]> individus = new ArrayList<Byte[]>();
+                individus.add(population.get(getRand(0,POPULATION_SIZE - 1)));
+                individus.add(population.get(getRand(0,POPULATION_SIZE - 1)));
+                individus.sort((a, b) -> individuCompare(a,b));
                 if(getRand(0,100) < CHANCE_OF_CROSSOVER) {
-                    population.add(croisement(individuA,individuB));
+                    population.add(croisement(individus.get(0),individus.get(1)));
                 }
                 if(getRand(0,100) < CHANCE_OF_MUTATION) {
-                    population.add(mutation(individuA));
+                    population.add(mutation(individus.get(1)));
                 }
-                if(getRand(0,100) < CHANCE_OF_MUTATION) {
-                    population.add(mutation(individuB));
-                }
-                populationSelection();
                 if(isPerfectResultFound){
                     break;
                 }
             }
+            populationSelection();
             if(isPerfectResultFound){
                 break;
             }
@@ -89,7 +93,7 @@ public class AlgoGen {
     }
 
     /**
-     * Sort and Select a Sample of 30 new individu
+     * Sort and Select a Sample of N new individu
      */
     private static void populationSelection() {
         population.sort((a, b) -> individuCompare(a,b));

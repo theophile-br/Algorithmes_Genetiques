@@ -1,6 +1,6 @@
 package com.teto.bsa;
 
-import com.teto.pso.models.Particule;
+import com.teto.bsa.models.Particule;
 
 import java.util.Random;
 
