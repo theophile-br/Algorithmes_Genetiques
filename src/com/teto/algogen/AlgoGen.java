@@ -1,21 +1,19 @@
 package com.teto.algogen;
-/*      -- THE BEST RESULT IS : --
-        GENETIQUE : 1_0_1_1_1_1_0_0_0_0
-        SOMME : 2 + 7 + 8 + 9 + 10  = 36
-        PRODUIT : 1 * 3 * 4 * 5 * 6  = 360
-        EVAL : 0
+/*
+    REGLE : 10 CARTES D'UNE VALEUR DE 1 à 10
+    TROUVER LA COMBINAISON POUR REPARTIR LES CARTES DE FACON A
+    A QUE LEURS SOMME SOIT EGAL A 36 ET LEURS PRODUIT EGAL A 360
 */
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 public class AlgoGen {
 
     // CONSTANTE
     static final byte DIMENSION = 10;
     static final byte POPULATION_SIZE = 40;
-    static final int MAX_GENERATION = 200_000;
-    static final byte CHANCE_OF_CROSSOVER = 75;
+    static final int MAX_GENERATION = 100;
+    static final byte CHANCE_OF_CROSSOVER = 80;
     static final byte CHANCE_OF_MUTATION = 10;
     // RULES
     static final int SOMME_RESULT = 36;
@@ -28,31 +26,36 @@ public class AlgoGen {
         Timestamp start = new Timestamp(System.currentTimeMillis());
 
         // GEN FIRST POPULATION
-        for(int i = 0; i < POPULATION_SIZE; i++) {
-            population.add(i, new Byte[DIMENSION]);
-            for(int j = 0; j < DIMENSION; j++ ) {
-                population.get(i)[j] = (getRand(0,100) > 50)? (byte)1 : (byte)0;
-            }
-        }
+        generatePopulation(0);
+
+        // FIRST EVALUATION
+        populationSelection();
 
         // GENERATION
         for(int i = 0 ; i < MAX_GENERATION; i++ ) {
-            for( int j = 1; j < POPULATION_SIZE; j++) {
+            // MUTATION & CROSS_OVER
+            for( int j = 1; j < POPULATION_SIZE / 2; j++) {
                 ArrayList<Byte[]> individus = new ArrayList<Byte[]>();
                 individus.add(population.get(getRand(0,POPULATION_SIZE - 1)));
                 individus.add(population.get(getRand(0,POPULATION_SIZE - 1)));
-                individus.sort((a, b) -> individuCompare(a,b));
+                while(evaluation(individus.get(0)) == evaluation(individus.get(1))){
+                    individus.remove(1);
+                    individus.add(population.get(getRand(0,POPULATION_SIZE - 1)));
+                }
                 if(getRand(0,100) < CHANCE_OF_CROSSOVER) {
                     population.add(croisement(individus.get(0),individus.get(1)));
                 }
                 if(getRand(0,100) < CHANCE_OF_MUTATION) {
                     population.add(mutation(individus.get(1)));
                 }
-                if(isPerfectResultFound){
-                    break;
-                }
             }
+            // SELECTION
             populationSelection();
+
+            // REGEN POPULATION IF ECART TYPE IS LOW
+            if(getPopulationEcartType() < 400) {
+                generatePopulation(1);
+            }
             if(isPerfectResultFound){
                 break;
             }
@@ -61,6 +64,54 @@ public class AlgoGen {
         long diff = end.getTime() - start.getTime();
         System.out.println("Process in " + diff + " ms");
         printResult();
+    }
+
+    /**
+     * Gen or Regen Population
+     */
+    private static void generatePopulation(int start) {
+        for(int i = start; i < POPULATION_SIZE; i++) {
+            population.add(i, new Byte[DIMENSION]);
+            for(int j = 0; j < DIMENSION; j++ ) {
+                population.get(i)[j] = (getRand(0,100) > 50)? (byte)1 : (byte)0;
+            }
+        }
+    }
+
+    /**
+     * Compute the ecart type of population
+     * @return
+     */
+    private static double getPopulationEcartType(){
+        HashMap<Integer,Integer> repartitionEvalutionAndNumber = new HashMap<Integer,Integer>();
+        for (int i = 0; i < population.size(); i++) {
+            int eval = evaluation(population.get(i));
+            if(!repartitionEvalutionAndNumber.containsKey(eval)){
+                repartitionEvalutionAndNumber.put(eval,1);
+            } else {
+                Integer number = repartitionEvalutionAndNumber.get(eval);
+                number++;
+                repartitionEvalutionAndNumber.put(eval,number);
+
+            }
+        }
+        float moyennePondere = 0;
+        for(Map.Entry<Integer,Integer> entry:repartitionEvalutionAndNumber.entrySet()){
+            Integer valeur = entry.getKey();
+            Integer effectif = entry.getValue();
+
+            moyennePondere += valeur * effectif;
+        }
+        moyennePondere /= population.size();
+        float ecartType = 0;
+        for(Map.Entry<Integer,Integer> entry:repartitionEvalutionAndNumber.entrySet()){
+            Integer valeur = entry.getKey();
+            Integer effectif = entry.getValue();
+
+            ecartType += effectif * Math.pow((valeur - moyennePondere),2);
+        }
+        ecartType /= population.size();
+        return Math.sqrt(ecartType);
     }
 
     /**
@@ -96,7 +147,9 @@ public class AlgoGen {
      * Sort and Select a Sample of N new individu
      */
     private static void populationSelection() {
+        // SORT
         population.sort((a, b) -> individuCompare(a,b));
+        // RESIZE
         while(population.size() != POPULATION_SIZE){
             population.remove(population.size() - 1);
         }
