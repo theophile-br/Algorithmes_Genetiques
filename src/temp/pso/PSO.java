@@ -1,6 +1,6 @@
-package com.teto.pso;
+package temp.pso;
 
-import com.teto.pso.models.Particule;
+import temp.pso.models.Particule;
 
 import java.util.Random;
 
@@ -33,9 +33,9 @@ public class PSO {
     // ---------- STEPS ---------- //
     public static void initializeParticule() {
         particules = new Particule[NOMBRE_DE_PARTICULE];
-        for(int i = 0; i < NOMBRE_DE_PARTICULE; i++) {
+        for (int i = 0; i < NOMBRE_DE_PARTICULE; i++) {
             particules[i] = new Particule(DIMENSION);
-            for(int d = 0; d < DIMENSION; d++){
+            for (int d = 0; d < DIMENSION; d++) {
                 particules[i].p[d] = getRandomPosition();
                 particules[i].pBest[d] = particules[i].p[d];
                 particules[i].v[d] = getRandomVitesse();
@@ -47,33 +47,33 @@ public class PSO {
 
     private static double calculFitness(Particule particule) {
         double somme = 0;
-        for(int i = 0; i < DIMENSION; i++) {
+        for (int i = 0; i < DIMENSION; i++) {
             double x = particule.p[i];
-            somme += x * x  - 10 * Math.cos(2 * Math.PI * x);
+            somme += x * x - 10 * Math.cos(2 * Math.PI * x);
         }
         return 10 * DIMENSION + somme;
     }
 
-    public static void algoPSO(){
+    public static void algoPSO() {
         int current_iteration = 1;
         boolean not_stop = false;
-        while( current_iteration <= MAX_ITERRATION && !not_stop) {
-            for(Particule particule: particules) {
+        while (current_iteration <= MAX_ITERRATION && !not_stop) {
+            for (Particule particule : particules) {
                 Particule meilleurVoisin = obtenirMeilleurVoisin(particule);
-                for(int i = 0; i < DIMENSION; i++) {
-                    particule.v[i] = updateSpeed(particule,meilleurVoisin,i);
-                    particule.p[i] = updatePosition(particule,i);
+                for (int i = 0; i < DIMENSION; i++) {
+                    particule.v[i] = updateSpeed(particule, meilleurVoisin, i);
+                    particule.p[i] = updatePosition(particule, i);
                 }
             }
-            for(Particule particule: particules) {
+            for (Particule particule : particules) {
                 double fitness = calculFitness(particule);
-                if(fitness < particule.fBest) {
+                if (fitness < particule.fBest) {
                     particule.fBest = fitness;
-                    for(int i = 0; i < DIMENSION; i++) {
+                    for (int i = 0; i < DIMENSION; i++) {
                         particule.pBest[i] = particule.p[i];
                     }
                 }
-                if(fitness == FIT_VOULUE){
+                if (fitness == FIT_VOULUE) {
                     not_stop = true;
                 }
             }
@@ -83,7 +83,7 @@ public class PSO {
 
     public static Particule getTheBestParticule() {
         Particule bestVoisin = null;
-        for(Particule voisin: particules) {
+        for (Particule voisin : particules) {
             if (bestVoisin == null || bestVoisin.fBest >= voisin.fBest) {
                 bestVoisin = voisin;
             }
@@ -93,8 +93,8 @@ public class PSO {
 
     public static Particule obtenirMeilleurVoisin(Particule particule) {
         Particule bestVoisin = null;
-        for(Particule voisin: particules) {
-            if(particule.equals(voisin)) {
+        for (Particule voisin : particules) {
+            if (particule.equals(voisin)) {
                 continue;
             }
             if (bestVoisin == null || bestVoisin.f >= voisin.f) {
@@ -110,8 +110,8 @@ public class PSO {
         double newSpeed = particule.v[d] +
                 r1 * (particule.pBest[d] - particule.p[d]) +
                 r2 * (meilleurVoisin.pBest[d] - particule.p[d]);
-        if(newSpeed > DELTA_VITESSE[1] ){
-            return  DELTA_VITESSE[1];
+        if (newSpeed > DELTA_VITESSE[1]) {
+            return DELTA_VITESSE[1];
         } else if (newSpeed < DELTA_VITESSE[0]) {
             return DELTA_VITESSE[0];
         }
@@ -120,8 +120,8 @@ public class PSO {
 
     public static double updatePosition(Particule particule, int d) {
         double newPosition = particule.p[d] + particule.v[d];
-        if(newPosition > BORNE[1] ){
-            return  BORNE[1];
+        if (newPosition > BORNE[1]) {
+            return BORNE[1];
         } else if (newPosition < BORNE[0]) {
             return BORNE[0];
         }
@@ -145,12 +145,12 @@ public class PSO {
         return new Random().nextInt(2);
     }
 
-    private static double getRandomPosition(){
-        return getRandom(BORNE[0],BORNE[1]);
+    private static double getRandomPosition() {
+        return getRandom(BORNE[0], BORNE[1]);
     }
 
-    private static double getRandomVitesse(){
-        return getRandom(DELTA_VITESSE[0],DELTA_VITESSE[1]);
+    private static double getRandomVitesse() {
+        return getRandom(DELTA_VITESSE[0], DELTA_VITESSE[1]);
     }
 }
 

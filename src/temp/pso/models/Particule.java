@@ -1,4 +1,4 @@
-package com.teto.bsa.models;
+package temp.pso.models;
 
 public class Particule {
     public double[] p;
@@ -7,7 +7,7 @@ public class Particule {
     public double f;
     public double fBest;
 
-    public Particule(int dimension){
+    public Particule(int dimension) {
         p = new double[dimension];
         pBest = new double[dimension];
         v = new double[dimension];
